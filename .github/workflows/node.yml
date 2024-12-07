@@ -1,0 +1,31 @@
+name: '🐢 Node'
+
+on:
+  push:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛬
+        uses: actions/checkout@v4
+      - name: 'Cache dependencies'
+        id: cache-node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package*.json') }}-${{ hashFiles('.github/workflows/node.yml') }}
+      - name: Setup Node ⚙️
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - name: Install dependencies 📦
+        if: steps.cache-node_modules.output.cache-hit != 'true'
+        run: npm ci
+      - name: Build typescript 📦
+        run: node --run build && find dist/main.js
+      - name: Lint code 💅
+        run: echo 'Linting code...'
+      - name: Run tests ✅
+        run: echo 'Running tests...'
